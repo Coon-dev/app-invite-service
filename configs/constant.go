@@ -51,7 +51,6 @@ func InitialConfig() {
 
 	DB.SetMaxOpenConns(50)
 	DB.SetMaxIdleConns(50)
-	DB.SetConnMaxIdleTime(Timeout)
 	DB.SetConnMaxLifetime(Timeout)
 
 	err = DB.Ping()
