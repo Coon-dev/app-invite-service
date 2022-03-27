@@ -1,22 +1,15 @@
 swagger: "2.0"
 info:
-  description: "This is a sample server Petstore server.  You can find out more about     Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).      For this sample, you can use the api key `special-key` to test the authorization     filters."
+  description: "This is a service that will facilitate the invite token generation and validationfor the Catalyst Experience App. An invite token is a 6 to 12 digit alphanumeric string that app admin can share with potential customers."
   version: "1.0.0"
-  title: "Swagger Petstore"
-  termsOfService: "http://swagger.io/terms/"
+  title: "App Invite Service"
   contact:
-    email: "apiteam@swagger.io"
-  license:
-    name: "Apache 2.0"
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "petstore.swagger.io"
-basePath: "/v2"
+    email: "thanachot.coon@gmail.com"
+host: "app-invite-service.herokuapp.com"
+basePath: "/"
 tags:
-- name: "pet"
-  description: "Everything about your Pets"
-  externalDocs:
-    description: "Find out more"
-    url: "http://swagger.io"
+- name: "admin"
+  description: "endpoint for admin"
 - name: "store"
   description: "Access to Petstore orders"
 - name: "user"
@@ -26,65 +19,38 @@ tags:
     url: "http://swagger.io"
 schemes:
 - "https"
-- "http"
 paths:
-  /pet:
+  /token/list:
     post:
       tags:
-      - "pet"
-      summary: "Add a new pet to the store"
+      - "admin"
+      summary: "get an overview of active/inactive token"
       description: ""
-      operationId: "addPet"
+      operationId: "ListToken"
       consumes:
       - "application/json"
-      - "application/xml"
       produces:
-      - "application/xml"
       - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Pet object that needs to be added to the store"
+      - in: "header"
+        type: "string"
+        name: "authentication"
+        description: "use token from Oauth2"
         required: true
-        schema:
-          $ref: "#/definitions/Pet"
       responses:
-        "405":
-          description: "Invalid input"
+        "200":
+          description: "OK"
+          schema:
+            type: "string"
+            # items: "#/definitions/Pet"
+        "401":
+          description: "Unauthorized"
+        "500":
+          description: "System Error"
       security:
       - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-    put:
-      tags:
-      - "pet"
-      summary: "Update an existing pet"
-      description: ""
-      operationId: "updatePet"
-      consumes:
-      - "application/json"
-      - "application/xml"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Pet object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/Pet"
-      responses:
-        "400":
-          description: "Invalid ID supplied"
-        "404":
-          description: "Pet not found"
-        "405":
-          description: "Validation exception"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
+        - "read:tokens"
+
   /pet/findByStatus:
     get:
       tags:
@@ -118,10 +84,10 @@ paths:
               $ref: "#/definitions/Pet"
         "400":
           description: "Invalid status value"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
+      # security:
+      # - petstore_auth:
+      #   - "write:pets"
+      #   - "read:pets"
   /pet/findByTags:
     get:
       tags:
@@ -150,10 +116,10 @@ paths:
               $ref: "#/definitions/Pet"
         "400":
           description: "Invalid tag value"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
+      # security:
+      # - petstore_auth:
+      #   - "write:pets"
+      #   - "read:pets"
       deprecated: true
   /pet/{petId}:
     get:
@@ -214,10 +180,10 @@ paths:
       responses:
         "405":
           description: "Invalid input"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
+      # security:
+      # - petstore_auth:
+      #   - "write:pets"
+      #   - "read:pets"
     delete:
       tags:
       - "pet"
@@ -243,10 +209,10 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Pet not found"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
+      # security:
+      # - petstore_auth:
+      #   - "write:pets"
+      #   - "read:pets"
   /pet/{petId}/uploadImage:
     post:
       tags:
@@ -280,10 +246,10 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/ApiResponse"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
+      # security:
+      # - petstore_auth:
+      #   - "write:pets"
+      #   - "read:pets"
   /store/inventory:
     get:
       tags:
@@ -570,13 +536,14 @@ securityDefinitions:
     authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
     flow: "implicit"
     scopes:
-      write:pets: "modify pets in your account"
-      read:pets: "read your pets"
+      read:tokens: "read your tokens"
   api_key:
     type: "apiKey"
     name: "api_key"
     in: "header"
 definitions:
+  ListTokenResponse:
+    type: "object"
   Order:
     type: "object"
     properties:
@@ -695,6 +662,3 @@ definitions:
         type: "string"
       message:
         type: "string"
-externalDocs:
-  description: "Find out more about Swagger"
-  url: "http://swagger.io"
