@@ -11,13 +11,10 @@ func StartService(port string) {
 	router.Use(gin.LoggerWithFormatter(logFormat))
 	router.Use(restHeaderMiddleware())
 
-	router.GET("/ping", endpoints.PingEndpoint)
-
-	// router.POST("/oauth", endpoints.AddTrackEndpoint)
-	// router.POST("/token/list", endpoints.GetTrackEndpoint)
-	// router.POST("/token/disable", endpoints.UpdateUserEndpoint)
-	// router.POST("/token/generate", endpoints.WebhookTrackEndpoint)
-	router.POST("/token/detail", endpoints.TokenDetailEndpoint)
+	router.POST("/token_list", endpoints.TokenListEndpoint)
+	router.POST("/token_disable", endpoints.TokenDisableEndpoint)
+	router.POST("/token_generate", endpoints.TokenGenerateEndpoint)
+	router.POST("/token_detail", endpoints.TokenDetailEndpoint)
 
 	router.Run(":" + port)
 }

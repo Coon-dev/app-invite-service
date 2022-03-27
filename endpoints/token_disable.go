@@ -10,22 +10,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TokenDetailEndpoint(c *gin.Context) {
+func TokenDisableEndpoint(c *gin.Context) {
 	defer c.Request.Body.Close()
 
-	var req models.TokenDetailRequest
+	auth := c.Request.Header.Get("Authorization")
+	if auth != configs.AuthKey {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	var req models.TokenDisableRequest
 	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
 		configs.Clog.Printf("cannot decode body: %+v", c.Request.Body)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	//Select database
+	//Update database
 
-	statusMock := [2]string{"active", "inactive"}
-	resp := models.TokenDetailResponse{
-		Status: statusMock[rand.Intn(2)],
-	}
-	configs.Clog.Printf("[%+v] response: %+v", req.Token, resp)
-	c.JSON(http.StatusOK, resp)
+	statusMock := [2]int{http.StatusOK, http.StatusBadRequest}
+
+	c.JSON(statusMock[rand.Intn(2)], nil)
 }

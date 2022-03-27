@@ -20,6 +20,8 @@ var (
 	DB            *sql.DB
 )
 
+const AuthKey string = "Basic a2mJIp6IOyZihYvw60WSwzprkB8AHGyOxtvmh0k1U4Lr0upv1LVpi4y"
+
 func InitialConfig() {
 	Clog = log.New(new(logWriter), "", log.LstdFlags|log.Lshortfile)
 	Timeout = 5 * time.Second
