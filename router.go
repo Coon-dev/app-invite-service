@@ -17,7 +17,7 @@ func StartService(port string) {
 	// router.POST("/token/list", endpoints.GetTrackEndpoint)
 	// router.POST("/token/disable", endpoints.UpdateUserEndpoint)
 	// router.POST("/token/generate", endpoints.WebhookTrackEndpoint)
-	// router.POST("/token/detail", endpoints.LineBotEndpoint)
+	router.POST("/token/detail", endpoints.TokenDetailEndpoint)
 
 	router.Run(":" + port)
 }
