@@ -36,6 +36,12 @@ paths:
         description: "use basic authen (fix value)"
         required: true
         default: "Basic a2mJIp6IOyZihYvw60WSwzprkB8AHGyOxtvmh0k1U4Lr0upv1LVpi4y"
+      - in: "header"
+        type: "string"
+        name: "Content-Type"
+        description: "use application/json (fix value)"
+        required: true
+        default: "application/json"
       responses:
         "200":
           description: "OK"
@@ -64,6 +70,12 @@ paths:
         description: "use basic authen (fix value)"
         required: true
         default: "Basic a2mJIp6IOyZihYvw60WSwzprkB8AHGyOxtvmh0k1U4Lr0upv1LVpi4y"
+      - in: "header"
+        type: "string"
+        name: "Content-Type"
+        description: "use application/json (fix value)"
+        required: true
+        default: "application/json"
       - in: "body"
         name: "body"
         description: "Token for disable"
@@ -98,6 +110,12 @@ paths:
         description: "use basic authen (fix value)"
         required: true
         default: "Basic a2mJIp6IOyZihYvw60WSwzprkB8AHGyOxtvmh0k1U4Lr0upv1LVpi4y"
+      - in: "header"
+        type: "string"
+        name: "Content-Type"
+        description: "use application/json (fix value)"
+        required: true
+        default: "application/json"
       responses:
         "200":
           description: "OK"
@@ -120,6 +138,12 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "Content-Type"
+        description: "use application/json (fix value)"
+        required: true
+        default: "application/json"
       - in: "body"
         name: "body"
         description: "Get Token Detail"
