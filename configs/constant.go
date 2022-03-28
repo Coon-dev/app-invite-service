@@ -47,19 +47,18 @@ func InitialConfig() {
 	TimeZone = tz
 
 	DB, err = sql.Open("mysql", "sql6481885:sql6481885@tcp(sql6.freemysqlhosting.net:3306)/sql6481885")
-	if err != nil {
-		Clog.Fatalln("Open SQL Failed:", err)
-	}
+	// if err != nil {
+	// 	Clog.Fatalln("Open SQL Failed:", err)
+	// }
 
 	DB.SetMaxOpenConns(50)
 	DB.SetMaxIdleConns(50)
 	DB.SetConnMaxLifetime(Timeout)
 
-	err = DB.Ping()
-	if err != nil {
-		Clog.Fatalln("Ping SQL Failed:", err)
-	}
-	defer DB.Close()
+	// err = DB.Ping()
+	// if err != nil {
+	// 	Clog.Fatalln("Ping SQL Failed:", err)
+	// }
 }
 
 type logWriter struct {
