@@ -37,7 +37,7 @@ func TokenListEndpoint(c *gin.Context) {
 	}
 
 	resp := models.TokenListResponse{
-		TokenList: make([]models.TokenList, 0),
+		TokenList: token,
 	}
 	configs.Clog.Printf("response: %+v", resp)
 	c.JSON(http.StatusOK, resp)
