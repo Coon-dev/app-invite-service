@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"server/app-invite-service/configs"
 	"server/app-invite-service/models"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -36,6 +37,11 @@ func TokenListEndpoint(c *gin.Context) {
 		return
 	}
 
+	for a := range token {
+		if time.Now().After(token[a].ExpiredAt) {
+			token[a].Status = "inactive"
+		}
+	}
 	resp := models.TokenListResponse{
 		TokenList: token,
 	}
