@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"server/app-invite-service/configs"
 	"server/app-invite-service/models"
+	"server/app-invite-service/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,7 @@ func TokenGenerateEndpoint(c *gin.Context) {
 	tn := time.Now()
 	insert := models.TokenList{
 		Token:     newToken,
-		Status:    "active",
+		Status:    utils.StatusActive,
 		CreatedAt: tn,
 		ExpiredAt: tn.AddDate(0, 0, 7),
 	}
@@ -41,7 +42,7 @@ func TokenGenerateEndpoint(c *gin.Context) {
 
 	resp := models.TokenGenerateResponse{
 		Token:     newToken,
-		Status:    "active",
+		Status:    utils.StatusActive,
 		CreatedAt: tn,
 		ExpiredAt: tn.AddDate(0, 0, 7),
 	}

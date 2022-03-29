@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"server/app-invite-service/configs"
 	"server/app-invite-service/models"
+	"server/app-invite-service/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +28,7 @@ func TokenDetailEndpoint(c *gin.Context) {
 	collection := configs.MongoClient.Database("pulseid").Collection("token")
 
 	resp := models.TokenDetailResponse{
-		Status: "not_found",
+		Status: utils.StatusNotFound,
 	}
 
 	var token models.TokenList
@@ -45,7 +46,7 @@ func TokenDetailEndpoint(c *gin.Context) {
 
 	resp.Status = token.Status
 	if time.Now().After(token.ExpiredAt) {
-		resp.Status = "inactive"
+		resp.Status = utils.StatusInactive
 	}
 
 	configs.Clog.Printf("[%+v] response: %+v", req.Token, resp)
