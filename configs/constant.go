@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"log"
@@ -56,6 +57,11 @@ func InitialConfig() {
 	option.SetMaxConnecting(50)
 
 	MongoClient, err = mongo.NewClient(option.ApplyURI("mongodb+srv://pulseid:pulseid123@cluster0.ncnqr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = MongoClient.Connect(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
