@@ -1,11 +1,13 @@
 package endpoints
 
 import (
+	"context"
 	"net/http"
 	"server/app-invite-service/configs"
 	"server/app-invite-service/models"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func TokenListEndpoint(c *gin.Context) {
@@ -18,6 +20,21 @@ func TokenListEndpoint(c *gin.Context) {
 	}
 
 	//Select database
+	var token []models.TokenList
+	collection := configs.MongoClient.Database("pulseid").Collection("token")
+	cur, err := collection.Find(context.Background(), bson.M{})
+	if err != nil {
+		configs.Clog.Printf("Select mongo error: %+v", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	err = cur.All(context.Background(), &token)
+	if err != nil {
+		configs.Clog.Printf("Select mongo error: %+v", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	resp := models.TokenListResponse{
 		TokenList: make([]models.TokenList, 0),

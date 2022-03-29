@@ -1,10 +1,12 @@
 package endpoints
 
 import (
+	"context"
 	"math/rand"
 	"net/http"
 	"server/app-invite-service/configs"
 	"server/app-invite-service/models"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,10 +22,28 @@ func TokenGenerateEndpoint(c *gin.Context) {
 
 	newToken := randomToken(6 + rand.Intn(7))
 
+	tn := time.Now()
+	insert := models.TokenList{
+		Token:     newToken,
+		Status:    "active",
+		CreatedAt: tn,
+		ExpiredAt: tn.AddDate(0, 0, 7),
+	}
+
 	//Insert database
+	collection := configs.MongoClient.Database("pulseid").Collection("token")
+	_, err := collection.InsertOne(context.Background(), insert)
+	if err != nil {
+		configs.Clog.Printf("Insert database error: %+v", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	resp := models.TokenGenerateResponse{
-		Token: newToken,
+		Token:     newToken,
+		Status:    "active",
+		CreatedAt: tn,
+		ExpiredAt: tn.AddDate(0, 0, 7),
 	}
 	configs.Clog.Printf("response: %+v", resp)
 	c.JSON(http.StatusOK, resp)

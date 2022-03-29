@@ -1,13 +1,14 @@
 package endpoints
 
 import (
+	"context"
 	"encoding/json"
-	"math/rand"
 	"net/http"
 	"server/app-invite-service/configs"
 	"server/app-invite-service/models"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func TokenDisableEndpoint(c *gin.Context) {
@@ -27,8 +28,19 @@ func TokenDisableEndpoint(c *gin.Context) {
 	}
 
 	//Update database
+	collection := configs.MongoClient.Database("pulseid").Collection("token")
+	filter := bson.M{"token": req.Token}
+	updator := bson.M{"$set": bson.M{"status": "inactive"}}
+	result, err := collection.UpdateOne(context.Background(), filter, updator)
+	if err != nil {
+		configs.Clog.Printf("Insert database error: %+v", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	if result.ModifiedCount <= 0 {
+		c.JSON(http.StatusNotModified, nil)
+		return
+	}
 
-	statusMock := [2]int{http.StatusOK, http.StatusBadRequest}
-
-	c.JSON(statusMock[rand.Intn(2)], nil)
+	c.JSON(http.StatusOK, nil)
 }

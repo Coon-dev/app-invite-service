@@ -2,13 +2,13 @@ package configs
 
 import (
 	"crypto/tls"
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -17,7 +17,7 @@ var (
 	HTTPCilent    *http.Client
 	Clog          *log.Logger
 	TimeZone      *time.Location
-	DB            *sql.DB
+	MongoClient   *mongo.Client
 )
 
 const AuthKey string = "Basic a2mJIp6IOyZihYvw60WSwzprkB8AHGyOxtvmh0k1U4Lr0upv1LVpi4y"
@@ -46,19 +46,19 @@ func InitialConfig() {
 	}
 	TimeZone = tz
 
-	DB, err = sql.Open("mysql", "sql6481885:sql6481885@tcp(sql6.freemysqlhosting.net:3306)/sql6481885")
-	// if err != nil {
-	// 	Clog.Fatalln("Open SQL Failed:", err)
-	// }
-
-	DB.SetMaxOpenConns(50)
-	DB.SetMaxIdleConns(50)
-	DB.SetConnMaxLifetime(Timeout)
-
 	// err = DB.Ping()
 	// if err != nil {
 	// 	Clog.Fatalln("Ping SQL Failed:", err)
 	// }
+	option := options.Client()
+	option.SetMaxPoolSize(50)
+	option.SetMaxConnIdleTime(Timeout)
+	option.SetMaxConnecting(50)
+
+	MongoClient, err = mongo.NewClient(option.ApplyURI("mongodb+srv://pulseid:pulseid123@cluster0.ncnqr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 type logWriter struct {
