@@ -43,6 +43,9 @@ func TokenListEndpoint(c *gin.Context) {
 			token[a].Status = utils.StatusInactive
 		}
 	}
+	if token == nil {
+		token = make([]models.TokenList, 0)
+	}
 	resp := models.TokenListResponse{
 		TokenList: token,
 	}
