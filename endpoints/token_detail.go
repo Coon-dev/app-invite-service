@@ -1,17 +1,13 @@
 package endpoints
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"server/app-invite-service/configs"
 	"server/app-invite-service/models"
-	"server/app-invite-service/utils"
-	"time"
+	"server/app-invite-service/services"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func TokenDetailEndpoint(c *gin.Context) {
@@ -24,31 +20,5 @@ func TokenDetailEndpoint(c *gin.Context) {
 		return
 	}
 
-	//Select database
-	collection := configs.MongoClient.Database("pulseid").Collection("token")
-
-	resp := models.TokenDetailResponse{
-		Status: utils.StatusNotFound,
-	}
-
-	var token models.TokenList
-	filter := bson.M{"token": req.Token}
-	err := collection.FindOne(context.Background(), filter).Decode(&token)
-	if err == mongo.ErrNoDocuments {
-		configs.Clog.Printf("token not found: %+v", err)
-		c.JSON(http.StatusOK, resp)
-		return
-	} else if err != nil {
-		configs.Clog.Printf("Select mongo error: %+v", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	resp.Status = token.Status
-	if time.Now().After(token.ExpiredAt) {
-		resp.Status = utils.StatusInactive
-	}
-
-	configs.Clog.Printf("[%+v] response: %+v", req.Token, resp)
-	c.JSON(http.StatusOK, resp)
+	c.JSON(services.TokenDetailService(req))
 }
