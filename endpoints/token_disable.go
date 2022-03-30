@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"server/app-invite-service/configs"
 	"server/app-invite-service/models"
@@ -21,10 +22,13 @@ func TokenDisableEndpoint(c *gin.Context) {
 
 	var req models.TokenDisableRequest
 	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
-		configs.Clog.Printf("cannot decode body: %+v", c.Request.Body)
+		log.Printf("cannot decode body: %+v\n", c.Request.Body)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	c.Status(services.TokenDisableService(req))
+	mgdb := &services.MongoDatabase{
+		Collection: configs.MongoClient.Database("pulseid").Collection("token"),
+	}
+	c.Status(services.TokenDisableService(req, mgdb))
 }

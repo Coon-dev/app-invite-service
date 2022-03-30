@@ -1,10 +1,9 @@
 package services
 
 import (
-	"context"
+	"log"
 	"math/rand"
 	"net/http"
-	"server/app-invite-service/configs"
 	"server/app-invite-service/models"
 	"server/app-invite-service/utils"
 	"time"
@@ -13,8 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func TokenDetailService(request models.TokenDetailRequest) (int, *models.TokenDetailResponse) {
-	collection := configs.MongoClient.Database("pulseid").Collection("token")
+func TokenDetailService(request models.TokenDetailRequest, database models.Database) (int, *models.TokenDetailResponse) {
 
 	resp := &models.TokenDetailResponse{
 		Status: utils.StatusNotFound,
@@ -22,12 +20,12 @@ func TokenDetailService(request models.TokenDetailRequest) (int, *models.TokenDe
 
 	var token models.TokenList
 	filter := bson.M{"token": request.Token}
-	err := collection.FindOne(context.Background(), filter).Decode(&token)
+	err := database.FindOne(filter, &token)
 	if err == mongo.ErrNoDocuments {
-		configs.Clog.Printf("[%s] token not found: %+v", request.Token, err)
+		log.Printf("[%s] token not found: %+v\n", request.Token, err)
 		return http.StatusOK, resp
 	} else if err != nil {
-		configs.Clog.Printf("[%s] Select mongo error: %+v", request.Token, err)
+		log.Printf("[%s] Select mongo error: %+v\n", request.Token, err)
 		return http.StatusInternalServerError, nil
 	}
 
@@ -36,28 +34,27 @@ func TokenDetailService(request models.TokenDetailRequest) (int, *models.TokenDe
 		resp.Status = utils.StatusInactive
 	}
 
-	configs.Clog.Printf("[%s] response: %+v", request.Token, resp)
+	log.Printf("[%s] response: %+v\n", request.Token, resp)
 	return http.StatusOK, resp
 }
 
-func TokenDisableService(request models.TokenDisableRequest) int {
-	collection := configs.MongoClient.Database("pulseid").Collection("token")
+func TokenDisableService(request models.TokenDisableRequest, database models.Database) int {
 	filter := bson.M{"token": request.Token}
 	updator := bson.M{"$set": bson.M{"status": utils.StatusInactive}}
-	result, err := collection.UpdateOne(context.Background(), filter, updator)
+	result, err := database.UpdateOne(filter, updator)
 	if err != nil {
-		configs.Clog.Printf("[%s] Insert database error: %+v", request.Token, err)
+		log.Printf("[%s] Insert database error: %+v\n", request.Token, err)
 		return http.StatusInternalServerError
 	}
 	if result.ModifiedCount <= 0 {
-		configs.Clog.Printf("[%s] token not found", request.Token)
+		log.Printf("[%s] token not found\n", request.Token)
 		return http.StatusNotModified
 	}
-	configs.Clog.Printf("[%s] update completed", request.Token)
+	log.Printf("[%s] update completed\n", request.Token)
 	return http.StatusOK
 }
 
-func TokenGenerateService() (int, *models.TokenGenerateResponse) {
+func TokenGenerateService(database models.Database) (int, *models.TokenGenerateResponse) {
 	newToken := utils.RandomToken(6 + rand.Intn(7))
 
 	tn := time.Now()
@@ -68,11 +65,9 @@ func TokenGenerateService() (int, *models.TokenGenerateResponse) {
 		ExpiredAt: tn.AddDate(0, 0, 7),
 	}
 
-	//Insert database
-	collection := configs.MongoClient.Database("pulseid").Collection("token")
-	_, err := collection.InsertOne(context.Background(), insert)
+	_, err := database.InsertOne(insert)
 	if err != nil {
-		configs.Clog.Printf("Insert database error: %+v", err)
+		log.Printf("Insert database error: %+v\n", err)
 		return http.StatusInternalServerError, nil
 	}
 
@@ -82,23 +77,16 @@ func TokenGenerateService() (int, *models.TokenGenerateResponse) {
 		CreatedAt: tn,
 		ExpiredAt: tn.AddDate(0, 0, 7),
 	}
-	configs.Clog.Printf("response: %+v", resp)
+	log.Printf("response: %+v\n", resp)
 	return http.StatusOK, resp
 }
 
-func TokenListService() (int, *models.TokenListResponse) {
-	//Select database
-	var token []models.TokenList
-	collection := configs.MongoClient.Database("pulseid").Collection("token")
-	cur, err := collection.Find(context.Background(), bson.M{})
-	if err != nil {
-		configs.Clog.Printf("Select mongo error: %+v", err)
-		return http.StatusInternalServerError, nil
-	}
+func TokenListService(database models.Database) (int, *models.TokenListResponse) {
 
-	err = cur.All(context.Background(), &token)
+	var token []models.TokenList
+	err := database.FindAll(bson.M{}, &token)
 	if err != nil {
-		configs.Clog.Printf("cursor to token: %+v", err)
+		log.Printf("database FindAll error: %+v\n", err)
 		return http.StatusInternalServerError, nil
 	}
 
@@ -113,6 +101,6 @@ func TokenListService() (int, *models.TokenListResponse) {
 	resp := &models.TokenListResponse{
 		TokenList: token,
 	}
-	configs.Clog.Printf("response: %+v", resp)
+	log.Printf("response: %+v\n", resp)
 	return http.StatusOK, resp
 }

@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"net/http"
+	"server/app-invite-service/configs"
 	"server/app-invite-service/services"
 
 	"github.com/gin-gonic/gin"
@@ -16,5 +17,8 @@ func TokenGenerateEndpoint(c *gin.Context) {
 		return
 	}
 
-	c.JSON(services.TokenGenerateService())
+	mgdb := &services.MongoDatabase{
+		Collection: configs.MongoClient.Database("pulseid").Collection("token"),
+	}
+	c.JSON(services.TokenGenerateService(mgdb))
 }
